@@ -1,14 +1,5 @@
 <?php
 
-function get_feed_entry($url) {
-    // For testing
-    $entry = new stdClass;
-    $entry->pubDate = time();
-    $entry->description = $url . " " . date('r',$entry->pubDate);
-    
-    return $entry;
-}
-
 function update_featured_image($post_id, $img_url) {
     // Get upload directory
     $uploads = wp_upload_dir();
@@ -50,15 +41,19 @@ function update_featured_image($post_id, $img_url) {
 function update_post($url, $post_id, $args = array()) {
     if (wp_is_post_revision($post_id)) return false;
 
-    $entry = get_feed_entry($url);
+    $feed = fetch_feed($url);
+    $entry = $feed->get_item();
     $post = get_post($post_id);
 
-    $post->post_content = $entry->description;
-    $post->post_date = date('Y-m-d H:i:s', $entry->pubDate);
-    $post->post_date_gmt = get_gmt_from_date($post->post_date);
+    $post->post_content = $entry->get_content();
+    $post->post_modified_gmt = $entry->get_gmdate('Y-m-d H:i:s');
+    $post->post_modified = get_date_from_gmt($post->post_modified_gmt);
+    if (!empty($args['update_title'])) $post->post_title = $entry->get_title();
 
     wp_update_post($post);
-    if (!empty($post->enclosure) && !empty($args['update_featured_image'])) 
-        update_featured_image($post_id, $post->enclosure->url);
+    if (!empty($post->enclosure) && !empty($args['update_featured_image'])) {
+        $e = $entry->get_enclosure();
+        update_featured_image($post_id, $e->get_link());
+    }
 }
 
