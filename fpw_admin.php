@@ -5,6 +5,7 @@ function fpw_panel_options() {
     if ( !current_user_can( 'manage_options' ) )  {
         wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
     }
+    wp_enqueue_style('fpw-styles',plugins_url('css/style.css', __FILE__));
 
     $feeds = get_option('feed-post-writer-feeds');
     $updated = (!empty($_POST['action'])) && ($_POST['action'] == "update");
@@ -15,11 +16,8 @@ function fpw_panel_options() {
 
         $feeds = $_POST['feeds'];
 
-        foreach($_POST as $k => $v) {
-            if ((strpos($k,"delete-feed-") === 0) && ($v == "Delete")) {
-                $i = (int)(str_replace('delete-feed-','',$k));
-                unset($feeds[$i]);
-            }
+        foreach($_POST['delete_feed'] as $v) {
+            unset($feeds[$v]);
         }
         $feeds = array_merge($feeds);
         if (is_array($feeds)) update_option('feed-post-writer-feeds', $feeds);
