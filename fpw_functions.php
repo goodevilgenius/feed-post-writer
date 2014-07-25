@@ -51,9 +51,9 @@ function update_post($url, $post_id, $args = array()) {
     if (!empty($args['update_title'])) $post->post_title = $entry->get_title();
 
     wp_update_post($post);
-    if (!empty($post->enclosure) && !empty($args['update_featured_image'])) {
+    if (!empty($args['update_featured_image'])) {
         $e = $entry->get_enclosure();
-        update_featured_image($post_id, $e->get_link());
+        if (!empty($e)) update_featured_image($post_id, $e->get_link());
     }
 }
 
