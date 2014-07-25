@@ -31,6 +31,12 @@
 			   />
 		<label for="fpw-feed-<?=$k?>-update-featured-image">Update featured image</label>
 		<br />
+		<input id="fpw-feed-<?=$k?>-update-title" name="feeds[<?=$k?>][update_title]" 
+			   type="checkbox" value="1" 
+			   <?php if (!empty($f['update_title'])):?>checked="checked"<?php endif;?>
+			   />
+		<label for="fpw-feed-<?=$k?>-update-title">Update title</label>
+		<br />
 		<input name="delete_feed[]" id="fpw-delete-feed-<?=$k?>" value="<?=$k?>" type="checkbox" />
 		<label for="fpw-delete-feed-<?=$k?>">Delete this feed</label>
 	  </fieldset>
