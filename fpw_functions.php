@@ -38,14 +38,14 @@ function fpw_update_featured_image($post_id, $img_url) {
     set_post_thumbnail($post_id, $attach_id);
 }
 
-function return_7200($seconds) { return 7200; }
+function return_3600($seconds) { return 3600; }
 
 function fpw_update_post($url, $post_id, $args = array()) {
     if (wp_is_post_revision($post_id)) return false;
 
-    add_filter('wp_feed_cache_transient_lifetime', 'return_7200');    // Only cache for two hours, instead of twelve
+    add_filter('wp_feed_cache_transient_lifetime', 'return_3600');    // Only cache for one hour, instead of twelve
     $feed = fetch_feed($url);
-    remove_filter('wp_feed_cache_transient_lifetime', 'return_7200'); // Remove feed cache lifetime
+    remove_filter('wp_feed_cache_transient_lifetime', 'return_3600'); // Remove feed cache lifetime
 
     $entry = $feed->get_item();
     $post = get_post($post_id);
