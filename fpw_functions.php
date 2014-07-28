@@ -116,7 +116,9 @@ function fpw_update_feed_crons($oldfeeds, $newfeeds) {
                 // Remove old cron job, and create new one
                 $ts = wp_next_scheduled('fpwupdateonschedulehook', array($url));
                 wp_unschedule_event($ts, 'fpwupdateonschedulehook', array($url));
-                wp_schedule_event(time(), $new['schedule'], 'fpwupdateonschedulehook', array($url));
+                if (array_key_exists($new['schedule'], $schedules))
+                    wp_schedule_event(time(), $new['schedule'], 'fpwupdateonschedulehook', array($url));
+                else fpw_add_feed_error($url, "Invalid update schedule.");
             }
         }
     }
@@ -124,7 +126,9 @@ function fpw_update_feed_crons($oldfeeds, $newfeeds) {
     foreach($newfeed_array as $url => $f) {
         if (!isset($oldfeed_array[$url])) {
             // Add new cron job for additional feed
-            wp_schedule_event(time(), $f['schedule'], 'fpwupdateonschedulehook', array($url));
+            if (array_key_exists($f['schedule'], $schedules))
+                wp_schedule_event(time(), $f['schedule'], 'fpwupdateonschedulehook', array($url));
+            else fpw_add_feed_error($url, "Invalid update schedule.");
         }
     }
 }
