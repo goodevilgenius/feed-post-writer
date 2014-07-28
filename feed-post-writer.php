@@ -1,9 +1,9 @@
 <?php
 /**
  * Plugin Name: Feed Post Writer
- * Plugin URI: 
+ * Plugin URI: https://github.com/goodevilgenius/feed-post-writer
  * Description: Populate a post with the first entry from a feed
- * Version: 0.0.1
+ * Version: 0.5
  * Author: Dan Jones
  * Author URI: http://goodevilgenius.org/
  * License: MIT
