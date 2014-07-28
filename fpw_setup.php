@@ -35,6 +35,12 @@ function fpw_add_cron_schedules($schedules) {
         'display' => __('Every 30 days')
     );
 
+    // Add a yearly schedule
+    $schedules['monthly'] = array(
+        'interval' => 31536000, // 365 days * 24 hours * 60 minutes * 60 seconds
+        'display' => __('Every Year')
+    );
+
     return $schedules;
 }
 add_filter('cron_schedules', 'fpw_add_cron_schedules'); 
