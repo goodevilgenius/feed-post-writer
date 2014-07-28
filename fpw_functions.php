@@ -1,6 +1,6 @@
 <?php
 
-function update_featured_image($post_id, $img_url) {
+function fpw_update_featured_image($post_id, $img_url) {
     // Get upload directory
     $uploads = wp_upload_dir();
     $upload_dir = $uploads['path'];
@@ -38,10 +38,15 @@ function update_featured_image($post_id, $img_url) {
     set_post_thumbnail($post_id, $attach_id);
 }
 
-function update_post($url, $post_id, $args = array()) {
+function return_7200($seconds) { return 7200; }
+
+function fpw_update_post($url, $post_id, $args = array()) {
     if (wp_is_post_revision($post_id)) return false;
 
+    add_filter('wp_feed_cache_transient_lifetime', 'return_7200');    // Only cache for two hours, instead of twelve
     $feed = fetch_feed($url);
+    remove_filter('wp_feed_cache_transient_lifetime', 'return_7200'); // Remove feed cache lifetime
+
     $entry = $feed->get_item();
     $post = get_post($post_id);
 
@@ -53,7 +58,7 @@ function update_post($url, $post_id, $args = array()) {
     wp_update_post($post);
     if (!empty($args['update_featured_image'])) {
         $e = $entry->get_enclosure();
-        if (!empty($e)) update_featured_image($post_id, $e->get_link());
+        if (!empty($e)) fpw_update_featured_image($post_id, $e->get_link());
     }
 }
 
