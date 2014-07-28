@@ -24,6 +24,9 @@ function fpw_panel_options() {
         if (!empty($_POST['add-feed']) && $_POST['add-feed'] == "Add feed") $feeds[] = array('url'=>'','pid'=>0);
     }
 
+    $schedules = wp_get_schedules();
+    uasort($schedules, function ($a, $b){return $a['interval'] - $b['interval'];});
+
     if (empty($feeds)) $feeds = array();
     include(plugin_dir_path(__FILE__) . 'settings.tpl.php');
 }

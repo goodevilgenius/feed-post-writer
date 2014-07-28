@@ -22,6 +22,18 @@
 	<td><input type="text" id="fpw-feed-<?=$k?>-pid" name="feeds[<?=$k?>][pid]" value="<?=$f['pid']?>" class="small-text" /></td>
   </tr>
   <tr>
+	<th scope="row"><label for="fpw-feed-<?=$k?>-schedule">Update Schedule</label></th>
+	<td>
+	  <select name="feeds[<?=$k?>][schedule]" id="fpw-feed-<?=$k?>-schedule">
+		<option value=""> --------- </option>
+		<?php foreach($schedules as $schn => $sch):?>
+		<option value="<?=$schn?>"
+				<?php if ($f['schedule'] == $schn):?>selected="selected"<?php endif;?>
+				><?=$sch['display']?></option>
+		<?php endforeach;?>
+	  </select>
+  </tr>
+  <tr>
 	<th scope="row">Options</th>
 	<td>
 	  <fieldset>
