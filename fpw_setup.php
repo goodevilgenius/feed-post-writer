@@ -36,7 +36,7 @@ function fpw_add_cron_schedules($schedules) {
     );
 
     // Add a yearly schedule
-    $schedules['monthly'] = array(
+    $schedules['yearly'] = array(
         'interval' => 31536000, // 365 days * 24 hours * 60 minutes * 60 seconds
         'display' => __('Every Year')
     );
