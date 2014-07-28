@@ -13,7 +13,7 @@
 require_once(plugin_dir_path(__FILE__) . 'fpw_admin.php');
 
 // Add necessary functions
-//require_once(plugin_dir_path(__FILE__) . 'fpw_functions.php');
+require_once(plugin_dir_path(__FILE__) . 'fpw_functions.php');
 
 // Setup plugin
-//require_once(plugin_dir_path(__FILE__) . 'fpw_setup.php');
+require_once(plugin_dir_path(__FILE__) . 'fpw_setup.php');
