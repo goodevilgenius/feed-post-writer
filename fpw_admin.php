@@ -20,7 +20,11 @@ function fpw_panel_options() {
             unset($feeds[$v]);
         }
         $feeds = array_merge($feeds);
-        if (is_array($feeds)) update_option('feed-post-writer-feeds', $feeds);
+        if (is_array($feeds)) {
+            $oldfeeds = get_option('feed-post-writer-feeds');
+            update_option('feed-post-writer-feeds', $feeds);
+            fpw_update_feed_crons($oldfeeds, $feeds);
+        }
         if (!empty($_POST['add-feed']) && $_POST['add-feed'] == "Add feed") $feeds[] = array('url'=>'','pid'=>0);
     }
 

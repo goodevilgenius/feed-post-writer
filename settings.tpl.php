@@ -1,6 +1,6 @@
 <!-- -*-html-*- -->
 <?php if ($updated): ?>
-<div class="updated"><p><strong><?php _e('settings saved.', 'feed-post-writer'); ?></strong></p></div>
+<div class="updated"><p><strong><?php _e('Settings saved.', 'feed-post-writer'); ?></strong></p></div>
 <?php endif; ?>
 
 <div class="wrap">
@@ -13,6 +13,12 @@
 
 <?php foreach($feeds as $k => $f):?>
 <tbody class="table-group fpw-feed">
+  <?php if (!empty($f['error'])):?>
+  <tr>
+	<td colspan="2"><p class="error-message">There is an error with this feed: <?=$f['error']?>
+		Please check your feed settings and try again.</p></td>
+  </tr>
+  <?php endif;?>
   <tr>
 	<th scope="row"><label for="fpw-feed-<?=$k?>-url">Feed URL</label></th>
 	<td><input type="text" id="fpw-feed-<?=$k?>-url" name="feeds[<?=$k?>][url]" value="<?=$f['url']?>" class="regular-text" /></td>
