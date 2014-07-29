@@ -60,6 +60,11 @@
 	  </fieldset>
 	</td>
   </tr>
+  <?php if ($f['next_run'] = wp_next_scheduled('fpwupdateonschedulehook',array($f['url']))):?>
+  <tr>
+	<td colspan="2"><p class="description">Next run on <?=get_date_from_gmt(date('Y-m-d H:i:s',$f['next_run']),'r')?></p></td>
+  </tr>
+  <?php endif;?>
 </tbody>
 <?php endforeach;?>
 <tbody>
