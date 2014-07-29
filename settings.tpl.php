@@ -39,6 +39,20 @@
 		<?php endforeach;?>
 	  </select>
   </tr>
+  <?php if (!empty($f['use_header_footer'])):?>
+  <tr>
+	<th scope="row"><label for="fpw-feed-<?=$k?>-header">Header Text</label></th>
+	<td>
+	  <?php wp_editor($f['header'],'fpw-feed-'.$k.'-header',array('textarea_name'=>'feeds['.$k.'][header]',teeny=>true,'textarea_rows'=>5))?>
+	</td>
+  </tr>
+  <tr>
+	<th scope="row"><label for="fpw-feed-<?=$k?>-footer">Footer Text</label></th>
+	<td>
+	  <?php wp_editor($f['footer'],'fpw-feed-'.$k.'-footer',array('textarea_name'=>'feeds['.$k.'][footer]',teeny=>true,'textarea_rows'=>5))?>
+	</td>
+  </tr>
+  <?php endif;?>
   <tr>
 	<th scope="row">Options</th>
 	<td>
@@ -54,6 +68,15 @@
 			   <?php if (!empty($f['update_title'])):?>checked="checked"<?php endif;?>
 			   />
 		<label for="fpw-feed-<?=$k?>-update-title">Update title</label>
+		<br />
+		<input id="fpw-feed-<?=$k?>-use-header-footer" name="feeds[<?=$k?>][use_header_footer]" 
+			   type="checkbox" value="1" 
+			   <?php if (!empty($f['use_header_footer'])):?>checked="checked"<?php endif;?>
+			   />
+		<label for="fpw-feed-<?=$k?>-use-header-footer">Add Header and Footer Text</label>
+		<br />
+		<input name="run_now[]" id="fpw-run-now-<?=$k?>" value="<?=$k?>" type="checkbox" />
+		<label for="fpw-run-now-<?=$k?>">Run this feed now</label> (Good idea if you've added header/footer text)
 		<br />
 		<input name="delete_feed[]" id="fpw-delete-feed-<?=$k?>" value="<?=$k?>" type="checkbox" />
 		<label for="fpw-delete-feed-<?=$k?>">Delete this feed</label>

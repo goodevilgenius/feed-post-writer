@@ -47,6 +47,7 @@ function fpw_add_feed_error($url, $error_msg) {
 function return_3600($seconds) { return 3600; }
 
 function fpw_update_post($url, $post_id, $args = array()) {
+    $r = array();
     if (wp_is_post_revision($post_id)) return false;
 
     add_filter('wp_feed_cache_transient_lifetime', 'return_3600');    // Only cache for one hour, instead of twelve
@@ -66,12 +67,20 @@ function fpw_update_post($url, $post_id, $args = array()) {
         return false;
     }
 
-    $post->post_content = $entry->get_content();
+    $content = $entry->get_content();
+    if (!empty($args['use_header_footer'])) {
+        $r['adding_header_footer'] = true;
+        if (!empty($args['header'])) $content = $args['header'] . "\n\n" . $content;
+        if (!empty($args['footer'])) $content .= "\n\n" . $args['footer'];
+    } else $r['adding_header_footer'] = false;
+    $post->post_content = $content;
     $post->post_modified_gmt = $entry->get_gmdate('Y-m-d H:i:s');
     $post->post_modified = get_date_from_gmt($post->post_modified_gmt);
     if (!empty($args['update_title'])) $post->post_title = $entry->get_title();
+    $r['content'] = $content;
+    $r['post_modified'] = $post->post_modified;
 
-    $r = wp_update_post($post, true);
+    $r['update'] = wp_update_post($post, true);
     
     if (is_wp_error($r)) {
         fpw_add_feed_error($url, $r->get_error_message());
@@ -80,15 +89,17 @@ function fpw_update_post($url, $post_id, $args = array()) {
 
     if (!empty($args['update_featured_image'])) {
         $e = $entry->get_enclosure();
-        if (!empty($e)) fpw_update_featured_image($post_id, $e->get_link());
+        if (!empty($e)) $r['update_image'] = fpw_update_featured_image($post_id, $e->get_link());
     }
+    return $r;
 }
 
 function fpw_update_on_schedule($url) {
     $feeds = get_option('feed-post-writer-feeds');
     foreach($feeds as $f) {
         if ($f['url'] == $url) {
-            fpw_update_post($url, $f['pid'], $f);
+            $r = fpw_update_post($url, $f['pid'], $f);
+            $f['success'] = $r;
             return($f);
         }
     }
@@ -102,6 +113,7 @@ function fpw_update_feed_crons($oldfeeds, $newfeeds) {
     $newfeed_array = array();
     if (is_array($oldfeeds)) foreach($oldfeeds as $f) if (!empty($f['url']) && !empty($f['pid'])) $oldfeed_array[$f['url']] = $f;
     if (is_array($newfeeds)) foreach($newfeeds as $f) if (!empty($f['url']) && !empty($f['pid'])) $newfeed_array[$f['url']] = $f;
+    $no_change = array();
 
     foreach($oldfeed_array as $url => $f) {
         if (!isset($newfeed_array[$url])) {
@@ -119,7 +131,7 @@ function fpw_update_feed_crons($oldfeeds, $newfeeds) {
                 if (array_key_exists($new['schedule'], $schedules))
                     wp_schedule_event(time(), $new['schedule'], 'fpwupdateonschedulehook', array($url));
                 else fpw_add_feed_error($url, "Invalid update schedule.");
-            }
+            } else $no_change[] = $f['url'];
         }
     }
 
@@ -131,4 +143,7 @@ function fpw_update_feed_crons($oldfeeds, $newfeeds) {
             else fpw_add_feed_error($url, "Invalid update schedule.");
         }
     }
+
+    // Returns all feeds that didn't change (and therefore, didn't run)
+    return $no_change;
 }

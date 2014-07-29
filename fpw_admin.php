@@ -15,6 +15,8 @@ function fpw_panel_options() {
         check_admin_referer('feed-post-writer-options');
 
         $feeds = $_POST['feeds'];
+        $to_run = array();
+        foreach($_POST['run_now'] as $k => $f) $to_run[] = $feeds[$k]['url'];
 
         foreach($_POST['delete_feed'] as $v) {
             unset($feeds[$v]);
@@ -23,7 +25,9 @@ function fpw_panel_options() {
         if (is_array($feeds)) {
             $oldfeeds = get_option('feed-post-writer-feeds');
             update_option('feed-post-writer-feeds', $feeds);
-            fpw_update_feed_crons($oldfeeds, $feeds);
+            $no_change = fpw_update_feed_crons($oldfeeds, $feeds);
+            $run = array_intersect($no_change, $to_run);
+            foreach($run as $url) fpw_update_on_schedule($url);
         }
         if (!empty($_POST['add-feed']) && $_POST['add-feed'] == "Add feed") $feeds[] = array('url'=>'','pid'=>0);
     }
