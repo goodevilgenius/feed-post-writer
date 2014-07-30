@@ -9,23 +9,54 @@ function fpw_update_featured_image($post_id, $img_url) {
     // Download to the proper place
     $file_base = basename($img_url);
     $downloaded = "$upload_dir/$file_base";
+
+    $already_downloaded = file_exists($downloaded);
+    if ($already_downloaded) {
+        $curr_id = get_post_thumbnail_id($post_id);
+        $curr_file = get_attached_file($curr_id);
+
+        if ($curr_file != $downloaded) {
+            // If there is already a file where we want to save it but it
+            // belongs to something else, we need to save it elsewhere
+            $pi = pathinfo($img_url);
+            $extra = "";
+            while (file_exists($downloaded)) {
+                $curr_id = get_post_thumbnail_id($post_id);
+                $curr_file = get_attached_file($curr_id);
+                if ($curr_file == $downloaded) {
+                    $already_downloaded = true;
+                    break;
+                }
+                
+                $extra .= "-{$post_id}";
+                $file_base = "{$pi['filename']}{$extra}.{$pi['extension']}";
+                $downloaded = "$upload_dir/$file_base";
+                $already_downloaded = false;
+            }
+        }
+        // But if the file exists, but it's the current featured image,
+        // it's ok to overwrite it
+    }
+
     $downloaded_url = "$upload_url/$file_base";
     copy($img_url, $downloaded);
 
     // Check the type of tile. We'll use this as the 'post_mime_type'.
     $filetype = wp_check_filetype($downloaded, null);
 
-    // Prepare an array of post data for the attachment.
-    $attachment = array(
-        'guid'           => $downloaded_url, 
-        'post_mime_type' => $filetype['type'],
-        'post_title'     => preg_replace( '/\.[^.]+$/', '', basename( $filename ) ),
-        'post_content'   => '',
-        'post_status'    => 'inherit'
-    );
+    if (!$already_downloaded) {
+        // Prepare an array of post data for the attachment.
+        $attachment = array(
+            'guid'           => $downloaded_url, 
+            'post_mime_type' => $filetype['type'],
+            'post_title'     => preg_replace( '/\.[^.]+$/', '', basename( $filename ) ),
+            'post_content'   => '',
+            'post_status'    => 'inherit'
+        );
 
-    // Insert the attachment.
-    $attach_id = wp_insert_attachment($attachment, $downloaded, $post_id);
+        // Insert the attachment, if not already
+        $attach_id = wp_insert_attachment($attachment, $downloaded, $post_id);
+    } else $attach_id = $curr_id;
 
     // Make sure that this file is included, as wp_generate_attachment_metadata() depends on it.
     require_once( ABSPATH . 'wp-admin/includes/image.php' );
@@ -89,7 +120,7 @@ function fpw_update_post($url, $post_id, $args = array()) {
 
     if (!empty($args['update_featured_image'])) {
         $e = $entry->get_enclosure();
-        if (!empty($e)) $r['update_image'] = fpw_update_featured_image($post_id, $e->get_link());
+        if (!is_null($e->get_link())) $r['update_image'] = fpw_update_featured_image($post_id, $e->get_link());
     }
     return $r;
 }
